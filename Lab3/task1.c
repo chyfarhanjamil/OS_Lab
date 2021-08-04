@@ -8,7 +8,7 @@
 
 int main()
 {
-    int fd1[2];
+    int fd[2];
 
     pid_t p;
 
@@ -37,7 +37,7 @@ int main()
 
     printf("\n");
 
-    if(pipe(fd1)==-1)
+    if(pipe(fd)==-1)
     {
         printf("Pipe Failed");
         return 1;
@@ -56,13 +56,13 @@ int main()
     {
         wait(NULL);
 
-        close(fd1[1]);
+        close(fd[1]);
 
         int i,output_int[size];
 
-        read(fd1[0], output_int, sizeof(output_int));
+        read(fd[0], output_int, sizeof(output_int));
 
-        printf("/nData read from pipe: \n");
+        printf("\nData read from pipe: \n");
         for(i=0;i<size;i++)
         {
             if(i<size){
@@ -120,10 +120,10 @@ int main()
             printf("%d ", array[j]);
         }
 
-        close(fd1[0]);
+        close(fd[0]);
 
-        write(fd1[1], array, sizeof(array));
-        close(fd1[1]);
+        write(fd[1], array, sizeof(array));
+        close(fd[1]);
 
         printf("\nChild ends.\n");
         return 1;
