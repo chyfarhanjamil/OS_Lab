@@ -12,33 +12,27 @@ int main()
 
     pid_t p;
 
-    int search = -1, array[100], arrSize, temp;
+    int key = -1, array[100], size, temp;
 
-    printf("Enter Size of Array:\n");
-    scanf("%d", &arrSize);
+    printf("Size of array:\n");
+    scanf("%d", &size);
 
-    printf("Enter Non-Negative Integers:\n");
-    for(int i=0; i<arrSize; i++)
+    printf("Enter non-negative no. :\n");
+    for(int i=0; i<size; i++)
     {
         scanf("%d", &array[i]);
-    }
-
-    printf("Scaning for Non-Negative Integers...\n");
-    for(int i=0; i<arrSize; i++)
-    {
-        printf("%d ", array[i]);
         if(array[i]<0)
         {
             printf("\n");
-            printf("Input not ok, program terminates...\n");
+            printf("Negative no. detected... Program terminated\n");
             return 0;
         }
     }
 
-    while(search < 0)
+    while(key < 0)
     {
-        printf("\nEnter the value to search: \n");
-        scanf("%d", &search);
+        printf("Enter key: \n");
+        scanf("%d", &key);
     }
 
     printf("\n");
@@ -57,39 +51,38 @@ int main()
         return 1;
     }
 
-    //Parent Process
+    //parent
     else if(p > 0)
     {
         wait(NULL);
-        printf("\nParent Process id %d\n",getpid());
 
         close(fd1[1]);
 
-        int i,output_int[arrSize];
+        int i,output_int[size];
 
         read(fd1[0], output_int, sizeof(output_int));
 
-        printf("Data read from pipe: \n");
-        for(i=0;i<sizeof(output_int);i++)
+        printf("/nData read from pipe: \n");
+        for(i=0;i<size;i++)
         {
-            if(i<arrSize){
+            if(i<size){
             printf("%d ",output_int[i]);
             printf("\n");
             }
         }
 
-        // Binary Search
+        // binary Search
         int first = 0;
-        int last = arrSize - 1;
+        int last = size - 1;
         int middle = (first + last)/2;
 
         while (first <= last)
         {
-            if (output_int[middle] < search)
+            if (output_int[middle] < key)
                 first = middle + 1;
-            else if (output_int[middle] == search)
+            else if (output_int[middle] == key)
             {
-                printf("\n%d is found!\n", search);
+                printf("%d is in the array at position %d!\n", key, (middle+1));
                 break;
             }
             else
@@ -99,20 +92,19 @@ int main()
         }
 
         if (first > last)
-            printf("\nNot found! %d is not present in the array.\n", search);
+            printf("\n%d cannot be found in the array!\n", key);
 
-        printf("Parent Process ends.\n");
+        printf("\nParent ends.\n");
         return 1;
     }
 
-    //child process
+    //child
     else
     {
-        printf("Child Process id %d\n",getpid());
-
-        for (int j = 0; j < arrSize-1; j++)
+        //bubble
+        for (int j = 0; j < size-1; j++)
         {
-            for (int k = 0; k < arrSize-j-1; k++)
+            for (int k = 0; k < size-j-1; k++)
             {
                 if (array[k] > array[k+1])
                 {
@@ -122,20 +114,18 @@ int main()
                 }
             }
         }
-        printf("Sorted Array by Child:\n");
-        for (int j = 0; j < arrSize; j++)
+        printf("Sorted Array Inside Child: ");
+        for (int j = 0; j < size; j++)
         {
             printf("%d ", array[j]);
         }
 
-        close(fd1[0]); // Close reading end of first pipe
+        close(fd1[0]);
 
-        // Write and close writing end of first pipe.
         write(fd1[1], array, sizeof(array));
-        printf("\nData written in pipe\n");
         close(fd1[1]);
 
-        printf("Child Process ends.\n");
+        printf("\nChild ends.\n");
         return 1;
     }
 
